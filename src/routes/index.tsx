@@ -17,6 +17,7 @@ const missionStatusSchema = z.enum([
 const searchSchema = z.object({
   filters: z.array(missionStatusSchema).optional().default([]),
   selectedMission: z.string().optional(),
+  q: z.string().optional().default(""),
 });
 
 export const Route = createFileRoute("/")({

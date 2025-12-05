@@ -1,11 +1,11 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { FilterBadge } from "@/components/FilterBadge";
 import { MissionCard } from "@/components/MissionCard";
+import { SearchInputURLSynced } from "@/components/SearchInput";
 import { mockMissions, type MissionStatus } from "@/types/mission";
+import { useMemo } from "react";
 
 const filterStatuses: MissionStatus[] = [
   "valid",
@@ -21,6 +21,7 @@ export function MissionsList() {
 
   const activeFilters = new Set(search.filters || []);
   const selectedMissionId = search.selectedMission || null;
+  const searchQuery = search.q || "";
 
   const toggleFilter = (status: MissionStatus) => {
     const newFilters = new Set(activeFilters);
@@ -56,16 +57,17 @@ export function MissionsList() {
     });
   };
 
+  // Filter missions based on search query
+  const filteredMissions = useMemo(() => {
+    return mockMissions.filter((mission) =>
+      mission.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
   return (
     <div className="flex flex-col gap-5 p-5 pb-2 flex-1 overflow-hidden">
       {/* Search Input */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <Input
-          placeholder="Search missions..."
-          className="pl-9 h-10 bg-background/50 border-border/50 focus:bg-background transition-colors"
-        />
-      </div>
+      <SearchInputURLSynced placeholder="Search missions..." />
 
       {/* Filter Badges */}
       <div className="space-y-3">
@@ -102,12 +104,12 @@ export function MissionsList() {
           All Missions
           <span className="text-xs text-muted-foreground">
             {" "}
-            ({mockMissions.length})
+            ({filteredMissions.length})
           </span>
         </h3>
         <ScrollArea className="h-full">
           <div className="flex flex-col gap-2.5 pe-4 pb-10">
-            {mockMissions.map((mission) => (
+            {filteredMissions.map((mission) => (
               <MissionCard
                 key={mission.id}
                 mission={mission}

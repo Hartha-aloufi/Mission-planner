@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,12 +16,11 @@ const filterStatuses: MissionStatus[] = [
 ];
 
 export function MissionsList() {
-  const [activeFilters, setActiveFilters] = useState<Set<MissionStatus>>(
-    new Set()
-  );
-  const [selectedMissionId, setSelectedMissionId] = useState<string | null>(
-    null
-  );
+  const search = useSearch({ from: "/" });
+  const navigate = useNavigate({ from: "/" });
+
+  const activeFilters = new Set(search.filters || []);
+  const selectedMissionId = search.selectedMission || null;
 
   const toggleFilter = (status: MissionStatus) => {
     const newFilters = new Set(activeFilters);
@@ -30,7 +29,31 @@ export function MissionsList() {
     } else {
       newFilters.add(status);
     }
-    setActiveFilters(newFilters);
+
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        filters: Array.from(newFilters),
+      }),
+    });
+  };
+
+  const selectMission = (id: string) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        selectedMission: id,
+      }),
+    });
+  };
+
+  const clearFilters = () => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        filters: [],
+      }),
+    });
   };
 
   return (
@@ -54,7 +77,7 @@ export function MissionsList() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setActiveFilters(new Set())}
+              onClick={clearFilters}
               className="h-6 px-2 text-xs"
             >
               Clear
@@ -89,7 +112,7 @@ export function MissionsList() {
                 key={mission.id}
                 mission={mission}
                 isSelected={selectedMissionId === mission.id}
-                onClick={() => setSelectedMissionId(mission.id)}
+                onClick={() => selectMission(mission.id)}
               />
             ))}
           </div>

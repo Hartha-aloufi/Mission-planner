@@ -5,7 +5,6 @@ import { FilterBadge } from "@/components/FilterBadge";
 import { MissionCard } from "@/components/MissionCard";
 import { SearchInputURLSynced } from "@/components/SearchInput";
 import { mockMissions, type MissionStatus } from "@/types/mission";
-import { useMemo } from "react";
 
 const filterStatuses: MissionStatus[] = [
   "valid",
@@ -57,12 +56,19 @@ export function MissionsList() {
     });
   };
 
-  // Filter missions based on search query
-  const filteredMissions = useMemo(() => {
-    return mockMissions.filter((mission) =>
-      mission.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery]);
+  // Filter missions based on search query and status filters
+  const filteredMissions = mockMissions.filter((mission) => {
+    // Filter by search query
+    const matchesSearch = mission.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    // Filter by status (if any filters are active)
+    const matchesFilter =
+      activeFilters.size === 0 || activeFilters.has(mission.status);
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="flex flex-col gap-5 p-5 pb-2 flex-1 overflow-hidden">

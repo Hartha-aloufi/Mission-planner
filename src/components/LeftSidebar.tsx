@@ -3,6 +3,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MissionsList } from "@/components/MissionsList";
 import { CollapsedFilters } from "@/components/CollapsedFilters";
+import { SearchInputURLSynced } from "@/components/SearchInput";
+import { MissionsStatusFilters } from "@/components/MissionsStatusFilters";
 import { cn } from "@/lib/utils";
 
 export function LeftSidebar() {
@@ -51,7 +53,16 @@ export function LeftSidebar() {
             <CollapsedFilters />
           </div>
         ) : (
-          <div className="animate-in fade-in slide-in-from-right-2 duration-200 h-full">
+          <div className="animate-in fade-in slide-in-from-right-2 duration-200 h-full flex flex-col space-y-5">
+            <div className="space-y-5 p-5 pb-0">
+              {/* Search Input */}
+              <SearchInputURLSynced placeholder="Search missions..." />
+
+              {/* Filter Badges */}
+              <MissionsStatusFilters />
+            </div>
+
+            {/* Mission List */}
             <MissionsList />
           </div>
         )}

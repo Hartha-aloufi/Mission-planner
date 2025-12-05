@@ -10,10 +10,10 @@ This is a React + TypeScript + Vite project using shadcn/ui components with Tail
 
 **Development:**
 ```bash
-npm run dev        # Start dev server
-npm run build      # TypeScript check + production build
-npm run preview    # Preview production build
-npm run lint       # Run ESLint
+bun run dev        # Start dev server
+bun run build      # TypeScript check + production build
+bun run preview    # Preview production build
+bun run lint       # Run ESLint
 ```
 
 ## Tech Stack
@@ -24,6 +24,8 @@ npm run lint       # Run ESLint
 - **Tailwind CSS v4** with @tailwindcss/vite plugin
 - **shadcn/ui** component library pattern
 - **Radix UI** primitives for accessible components
+- **Zustand** for state management
+- **react-map-gl** with Mapbox GL for maps
 - **ESLint** with TypeScript, React Hooks, and React Refresh plugins
 
 ## Project Structure
@@ -35,6 +37,7 @@ src/
 ├── index.css             # Global styles with Tailwind v4 and CSS variables
 ├── components/
 │   └── ui/               # shadcn/ui components (button.tsx, etc.)
+├── stores/               # Zustand stores (useAuthStore.ts, useMapStore.ts, etc.)
 └── lib/
     └── utils.ts          # Utility functions (cn helper)
 ```
@@ -67,6 +70,72 @@ src/
 - Uses `erasableSyntaxOnly: true` for compatibility with React Compiler
 - `noEmit: true` since Vite handles bundling
 - Module resolution set to "bundler" for modern module handling
+
+### State Management with Zustand
+
+This project uses Zustand for state management. Follow these best practices:
+
+**1. Only Export Custom Hooks**
+- Never export the store directly
+- Export custom hooks for accessing state/actions
+- Example:
+  ```typescript
+  const useStore = create(...)
+  export const useUser = () => useStore((state) => state.user)
+  export const useActions = () => useStore((state) => state.actions)
+  ```
+
+**2. Prefer Atomic Selectors**
+- Create specific selectors for each piece of state
+- Avoid selecting entire state objects when only part is needed
+- Improves performance by preventing unnecessary re-renders
+- Example:
+  ```typescript
+  // Good - atomic selector
+  export const useUserId = () => useStore((state) => state.user.id)
+
+  // Avoid - selecting entire object
+  export const useUser = () => useStore((state) => state.user)
+  ```
+
+**3. Separate Actions from State**
+- Keep actions in a separate object within the store
+- Makes it clear what's state and what's behavior
+- Example:
+  ```typescript
+  interface Store {
+    user: User | null
+    isLoading: boolean
+    actions: {
+      login: (credentials: Credentials) => Promise<void>
+      logout: () => void
+    }
+  }
+  ```
+
+**4. Model Actions as Events, not Setters**
+- Name actions after events/intentions, not after what they set
+- Example:
+  ```typescript
+  // Good - event-based naming
+  actions: {
+    login: () => {...}
+    submitForm: () => {...}
+    fetchUserData: () => {...}
+  }
+
+  // Avoid - setter-based naming
+  actions: {
+    setUser: () => {...}
+    setFormData: () => {...}
+  }
+  ```
+
+**Store Location:**
+- Place stores in `src/stores/` directory
+- Use descriptive names: `useAuthStore.ts`, `useMapStore.ts`, etc.
+
+**Reference:** [Working with Zustand by TkDodo](https://tkdodo.eu/blog/working-with-zustand)
 
 ## Development Guidelines
 

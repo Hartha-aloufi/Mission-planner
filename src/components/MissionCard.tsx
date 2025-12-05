@@ -5,36 +5,56 @@ import { cn } from "@/lib/utils";
 
 interface MissionCardProps {
   mission: Mission;
+  isSelected?: boolean;
+  onClick?: () => void;
 }
 
-export function MissionCard({ mission }: MissionCardProps) {
+export function MissionCard({
+  mission,
+  isSelected = false,
+  onClick,
+}: MissionCardProps) {
   const statusConfig = missionStatusConfig[mission.status];
 
   return (
     <div
+      onClick={onClick}
       className={cn(
-        "p-3 border rounded-lg cursor-pointer transition-colors",
-        "hover:bg-accent/50",
-        "flex flex-col gap-2"
+        "p-4 rounded-xl cursor-pointer transition-all duration-200",
+        "bg-card border-2",
+        "hover:bg-accent/20",
+        "group",
+        isSelected
+          ? "border-primary bg-accent/10"
+          : "border-border/50 hover:border-border"
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-sm leading-tight flex-1">
+      <div className="flex flex-col gap-3">
+        {/* Mission Name */}
+        <h3 className="font-semibold text-sm leading-tight text-foreground group-hover:text-primary transition-colors">
           {mission.name}
         </h3>
-      </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <Badge
-          variant={statusConfig.variant}
-          className={cn("text-xs", statusConfig.color, "text-white")}
-        >
-          {statusConfig.label}
-        </Badge>
+        {/* Status and Area */}
+        <div className="flex items-center justify-between gap-3">
+          <Badge
+            variant={statusConfig.variant}
+            className={cn(
+              "text-xs font-medium px-2.5 py-0.5",
+              statusConfig.color,
+              "text-white"
+            )}
+          >
+            {statusConfig.label}
+          </Badge>
 
-        <span className="text-xs text-muted-foreground">
-          {mission.area.toLocaleString()} m²
-        </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              {mission.area.toLocaleString()}
+            </span>
+            <span className="text-[10px] text-muted-foreground/70">m²</span>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -127,3 +127,13 @@ html {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .sidebar-surface {
+    background: linear-gradient(to bottom, oklch(0.99 0 0), oklch(0.98 0 0));
+  }
+
+  .dark .sidebar-surface {
+    background: linear-gradient(to bottom, oklch(0.16 0.005 285.823), oklch(0.14 0.005 285.823));
+  }
+}

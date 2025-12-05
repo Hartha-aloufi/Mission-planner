@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,9 @@ export function LeftSidebar() {
   const [activeFilters, setActiveFilters] = useState<Set<MissionStatus>>(
     new Set()
   );
+  const [selectedMissionId, setSelectedMissionId] = useState<string | null>(
+    null
+  );
 
   const toggleFilter = (status: MissionStatus) => {
     const newFilters = new Set(activeFilters);
@@ -35,16 +38,25 @@ export function LeftSidebar() {
   return (
     <div
       className={cn(
-        "h-full border-e bg-background transition-all duration-300 flex flex-col",
-        isCollapsed ? "w-12" : "w-96"
+        "h-full max-h-screen sidebar-surface transition-all duration-300 flex flex-col relative",
+        isCollapsed ? "w-14" : "w-[360px]"
       )}
     >
-      {/* Toggle Button */}
-      <div className="p-2 border-b flex justify-end">
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-border/50 flex items-center justify-between">
+        {!isCollapsed && (
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">Missions</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Manage drone flight paths
+            </p>
+          </div>
+        )}
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
+          className="hover:bg-accent/50 transition-colors"
         >
           {isCollapsed ? (
             <ChevronRight className="size-4" />
@@ -55,15 +67,33 @@ export function LeftSidebar() {
       </div>
 
       {!isCollapsed && (
-        <div className="flex flex-col gap-4 p-4 flex-1 overflow-hidden">
+        <div className="flex flex-col gap-5 p-5 pb-2 flex-1 overflow-hidden">
           {/* Search Input */}
-          <div>
-            <Input placeholder="search mission by name" />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Search missions..."
+              className="pl-9 h-10 bg-background/50 border-border/50 focus:bg-background transition-colors"
+            />
           </div>
 
           {/* Filter Badges */}
-          <div>
-            <h3 className="text-sm font-semibold mb-2">Filters</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between min-h-6">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Filters
+              </h3>
+              {activeFilters.size > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setActiveFilters(new Set())}
+                  className="h-6 px-2 text-xs"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
               {filterStatuses.map((status) => (
                 <FilterBadge
@@ -77,14 +107,23 @@ export function LeftSidebar() {
           </div>
 
           {/* Mission List */}
-          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-            <h3 className="text-sm font-semibold mb-2">
-              Missions ({mockMissions.length})
+          <div className="space-y-3 min-h-0">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ">
+              All Missions
+              <span className="text-xs text-muted-foreground">
+                {" "}
+                ({mockMissions.length})
+              </span>
             </h3>
             <ScrollArea className="h-full">
-              <div className="flex flex-col gap-2 pe-4">
+              <div className="flex flex-col gap-2.5 pe-4 pb-10">
                 {mockMissions.map((mission) => (
-                  <MissionCard key={mission.id} mission={mission} />
+                  <MissionCard
+                    key={mission.id}
+                    mission={mission}
+                    isSelected={selectedMissionId === mission.id}
+                    onClick={() => setSelectedMissionId(mission.id)}
+                  />
                 ))}
               </div>
             </ScrollArea>

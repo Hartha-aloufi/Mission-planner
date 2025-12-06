@@ -3,10 +3,12 @@ import { z } from "zod";
 import { useEffect } from "react";
 import Map, { useControl } from "react-map-gl/mapbox";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import type { Polygon } from "geojson";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { useIsDrawingMode, useStopDrawing } from "@/stores/useMapStore";
+import { useCreateMission } from "@/api/missions";
 
 // Zod schema for mission status
 const missionStatusSchema = z.enum([
@@ -28,6 +30,7 @@ const searchSchema = z.object({
 function DrawControl() {
   const isDrawingMode = useIsDrawingMode();
   const stopDrawing = useStopDrawing();
+  const createMission = useCreateMission();
 
   const draw = useControl(
     () =>
@@ -37,10 +40,9 @@ function DrawControl() {
       }),
     ({ map }) => {
       map.on("draw.create", (e) => {
-        console.log("Polygon created:", e.features[0]);
+        const polygon = e.features[0].geometry as Polygon;
+        createMission.mutate(polygon);
         stopDrawing();
-        // Polygon is ready to be sent to backend
-        // TODO: Send polygon to backend
       });
     }
   );

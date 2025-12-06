@@ -1,3 +1,5 @@
+import type { Polygon } from "geojson";
+
 export type MissionStatus =
   | "valid"
   | "partially_outside_site"
@@ -10,6 +12,7 @@ export interface Mission {
   name: string;
   status: MissionStatus;
   area: number; // in square meters
+  geometry: Polygon;
 }
 
 export interface MissionStatusConfig {
@@ -45,55 +48,3 @@ export const missionStatusConfig: Record<MissionStatus, MissionStatusConfig> = {
     color: "bg-red-500",
   },
 };
-
-// Mock data for development
-export const mockMissions: Mission[] = [
-  {
-    id: "1",
-    name: "North Field Survey",
-    status: "valid",
-    area: 15000,
-  },
-  {
-    id: "2",
-    name: "East Boundary Check",
-    status: "partially_outside_site",
-    area: 8500,
-  },
-  {
-    id: "3",
-    name: "Central Area Scan",
-    status: "valid",
-    area: 22000,
-  },
-  {
-    id: "4",
-    name: "Restricted Zone Test",
-    status: "intersects_restricted_hole",
-    area: 5000,
-  },
-  {
-    id: "5",
-    name: "Airport Vicinity",
-    status: "intersects_no_fly_zone",
-    area: 12000,
-  },
-  {
-    id: "6",
-    name: "Invalid Path",
-    status: "invalid_geometry",
-    area: 0,
-  },
-  {
-    id: "7",
-    name: "South Field Mapping",
-    status: "valid",
-    area: 18500,
-  },
-  {
-    id: "8",
-    name: "West Edge Analysis",
-    status: "partially_outside_site",
-    area: 9200,
-  },
-];

@@ -15,6 +15,11 @@ import { type Mission } from "@/types/mission";
 import { cn } from "@/lib/utils";
 import { useRenameMission } from "@/api/missions";
 import { toast } from "sonner";
+import {
+  useEditingMissionId,
+  useStartEditingMission,
+  useStopEditingMission,
+} from "@/stores/useUIStore";
 
 const MAX_MISSION_NAME_LENGTH = 100;
 const missionNameSchema = z.string().trim().min(1, "Name cannot be empty").max(MAX_MISSION_NAME_LENGTH, "Name is too long");
@@ -31,7 +36,10 @@ export function MissionCard({
   onClick,
 }: MissionCardProps) {
   const statusConfig = missionStatusConfig[mission.status];
-  const [isEditing, setIsEditing] = useState(false);
+  const editingMissionId = useEditingMissionId();
+  const startEditingMission = useStartEditingMission();
+  const stopEditingMission = useStopEditingMission();
+  const isEditing = editingMissionId === mission.id;
   const [editedName, setEditedName] = useState(mission.name);
   const renameMission = useRenameMission();
   const editContainerRef = useRef<HTMLDivElement>(null);
@@ -46,7 +54,7 @@ export function MissionCard({
         !editContainerRef.current.contains(event.target as Node)
       ) {
         setEditedName(mission.name);
-        setIsEditing(false);
+        stopEditingMission();
       }
     };
 
@@ -54,7 +62,7 @@ export function MissionCard({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isEditing, mission.name]);
+  }, [isEditing, mission.name, stopEditingMission]);
 
   const handleRename = () => {
     const result = missionNameSchema.safeParse(editedName);
@@ -71,12 +79,12 @@ export function MissionCard({
         { id: mission.id, newName: result.data },
         {
           onSuccess: () => {
-            setIsEditing(false);
+            stopEditingMission();
           },
         }
       );
     } else {
-      setIsEditing(false);
+      stopEditingMission();
     }
   };
 
@@ -85,7 +93,7 @@ export function MissionCard({
       handleRename();
     } else if (e.key === "Escape") {
       setEditedName(mission.name);
-      setIsEditing(false);
+      stopEditingMission();
     }
   };
 
@@ -153,7 +161,7 @@ export function MissionCard({
                   <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
-                      setIsEditing(true);
+                      startEditingMission(mission.id);
                       setEditedName(mission.name);
                     }}
                   >

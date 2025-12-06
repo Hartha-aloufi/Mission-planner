@@ -8,6 +8,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { LeftSidebar } from "@/components/LeftSidebar";
 import { useIsDrawingMode, useStopDrawing } from "@/stores/useMapStore";
+import { useStartEditingMission } from "@/stores/useUIStore";
 import { useCreateMission, useMissions } from "@/api/missions";
 import { missionsToGeoJSON } from "@/lib/mapUtils";
 import { createFillLayer, createOutlineLayer } from "@/config/map/mapLayers";
@@ -33,6 +34,8 @@ function DrawControl() {
   const isDrawingMode = useIsDrawingMode();
   const stopDrawing = useStopDrawing();
   const createMission = useCreateMission();
+  const navigate = useNavigate({ from: "/" });
+  const startEditingMission = useStartEditingMission();
 
   const draw = useControl(
     () =>
@@ -43,7 +46,19 @@ function DrawControl() {
     ({ map }) => {
       map.on("draw.create", (e) => {
         const polygon = e.features[0].geometry as Polygon;
-        createMission.mutate(polygon);
+        createMission.mutate(polygon, {
+          onSuccess: (newMission) => {
+            // Select the new mission (updates URL, triggers scroll)
+            navigate({
+              search: (prev) => ({
+                ...prev,
+                selectedMission: newMission.id,
+              }),
+            });
+            // Start editing the new mission
+            startEditingMission(newMission.id);
+          },
+        });
         stopDrawing();
       });
     }

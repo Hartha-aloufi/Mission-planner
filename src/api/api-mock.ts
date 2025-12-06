@@ -187,7 +187,7 @@ export async function fetchMissions(): Promise<Mission[]> {
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  return getMissionsFromStorage();
+  return getMissionsFromStorage().slice().reverse();
 }
 
 export async function createMission(polygon: Polygon): Promise<Mission> {

@@ -52,7 +52,8 @@ export function MissionsList() {
     return matchesSearch && matchesFilter;
   });
 
-  const missionsListItems = filteredMissions.map((mission) => (
+  const missionsListItems = filteredMissions
+  .map((mission) => (
     <div
       key={mission.id}
       ref={(el) => {

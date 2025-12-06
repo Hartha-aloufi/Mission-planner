@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MissionCard } from "@/components/MissionCard";
@@ -12,6 +13,7 @@ export function MissionsList() {
   const activeFilters = new Set(search.filters || []);
   const selectedMissionId = search.selectedMission || null;
   const searchQuery = search.q || "";
+  const missionRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const selectMission = (id: string) => {
     navigate({
@@ -21,6 +23,20 @@ export function MissionsList() {
       }),
     });
   };
+
+  // Scroll to selected mission card
+  useEffect(() => {
+    if (selectedMissionId) {
+      const element = missionRefs.current.get(selectedMissionId);
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "nearest",
+        });
+      }
+    }
+  }, [selectedMissionId]);
 
   // Filter missions based on search query and status filters
   const filteredMissions = (missions || []).filter((mission) => {
@@ -36,6 +52,25 @@ export function MissionsList() {
     return matchesSearch && matchesFilter;
   });
 
+  const missionsListItems = filteredMissions.map((mission) => (
+    <div
+      key={mission.id}
+      ref={(el) => {
+        if (el) {
+          missionRefs.current.set(mission.id, el);
+        } else {
+          missionRefs.current.delete(mission.id);
+        }
+      }}
+    >
+      <MissionCard
+        mission={mission}
+        isSelected={selectedMissionId === mission.id}
+        onClick={() => selectMission(mission.id)}
+      />
+    </div>
+  ));
+
   if (error) {
     return (
       <div className="space-y-3 min-h-0 flex-1 overflow-hidden flex flex-col ps-5">
@@ -43,7 +78,7 @@ export function MissionsList() {
           All Missions
         </h3>
         <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-          Error loading missions
+          Error loading missions!
         </div>
       </div>
     );
@@ -69,14 +104,7 @@ export function MissionsList() {
               <MissionCardSkeleton />
             </>
           ) : (
-            filteredMissions.map((mission) => (
-              <MissionCard
-                key={mission.id}
-                mission={mission}
-                isSelected={selectedMissionId === mission.id}
-                onClick={() => selectMission(mission.id)}
-              />
-            ))
+            missionsListItems
           )}
         </div>
       </ScrollArea>

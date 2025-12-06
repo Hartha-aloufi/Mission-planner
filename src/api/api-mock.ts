@@ -218,3 +218,29 @@ export async function createMission(polygon: Polygon): Promise<Mission> {
 
   return newMission;
 }
+
+export async function renameMission(
+  id: string,
+  newName: string
+): Promise<Mission> {
+  // Simulate network delay
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  const missions = getMissionsFromStorage();
+
+  // Find mission and update name
+  const missionIndex = missions.findIndex((m) => m.id === id);
+  if (missionIndex === -1) {
+    throw new Error("Mission not found");
+  }
+
+  const updatedMission = {
+    ...missions[missionIndex],
+    name: newName.trim(),
+  };
+
+  missions[missionIndex] = updatedMission;
+  saveMissionsToStorage(missions);
+
+  return updatedMission;
+}

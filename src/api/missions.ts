@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Polygon } from "geojson";
 import { toast } from "sonner";
-import { fetchMissions, createMission } from "./api-mock";
+import { fetchMissions, createMission, renameMission } from "./api-mock";
 import type { Mission } from "@/types/mission";
 
 export const missionKeys = {
@@ -71,6 +71,56 @@ export function useCreateMission() {
       // Rollback on error
       if (context?.previousMissions) {
         queryClient.setQueryData<Mission[]>(missionKeys.lists(), context.previousMissions);
+      }
+    },
+  });
+}
+
+// Mutation hook for renaming a mission
+export function useRenameMission() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, newName }: { id: string; newName: string }) =>
+      renameMission(id, newName),
+
+    // Optimistic update
+    onMutate: async ({ id, newName }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: missionKeys.lists() });
+
+      // Snapshot the previous value
+      const previousMissions = queryClient.getQueryData<Mission[]>(
+        missionKeys.lists()
+      );
+
+      // Optimistically update the mission name
+      if (previousMissions) {
+        const updatedMissions = previousMissions.map((mission) =>
+          mission.id === id ? { ...mission, name: newName } : mission
+        );
+        queryClient.setQueryData<Mission[]>(missionKeys.lists(), updatedMissions);
+      }
+
+      // Return context with snapshot
+      return { previousMissions };
+    },
+
+    // Show success toast
+    onSuccess: (updatedMission) => {
+      queryClient.invalidateQueries({ queryKey: missionKeys.lists() });
+      toast.success("Mission renamed successfully!", {
+        description: updatedMission.name,
+      });
+    },
+
+    // Rollback on error
+    onError: (_, __, context) => {
+      if (context?.previousMissions) {
+        queryClient.setQueryData<Mission[]>(
+          missionKeys.lists(),
+          context.previousMissions
+        );
       }
     },
   });

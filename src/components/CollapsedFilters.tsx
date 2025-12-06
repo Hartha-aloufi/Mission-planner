@@ -48,7 +48,7 @@ export function CollapsedFilters() {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col gap-2 p-2">
+      <div className="flex flex-col gap-2">
         {filterStatuses.map((status) => {
           const config = missionStatusConfig[status];
           const isActive = activeFilters.has(status);

@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import Map from "react-map-gl/mapbox";
+import { useEffect } from "react";
+import Map, { useControl } from "react-map-gl/mapbox";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import "mapbox-gl/dist/mapbox-gl.css";
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { LeftSidebar } from "@/components/LeftSidebar";
+import { useIsDrawingMode, useStopDrawing } from "@/stores/useMapStore";
 
 // Zod schema for mission status
 const missionStatusSchema = z.enum([
@@ -19,6 +23,40 @@ const searchSchema = z.object({
   selectedMission: z.string().optional(),
   q: z.string().optional().default(""),
 });
+
+// Draw control component
+function DrawControl() {
+  const isDrawingMode = useIsDrawingMode();
+  const stopDrawing = useStopDrawing();
+
+  const draw = useControl(
+    () =>
+      new MapboxDraw({
+        displayControlsDefault: false,
+        controls: {},
+      }),
+    ({ map }) => {
+      map.on("draw.create", (e) => {
+        console.log("Polygon created:", e.features[0]);
+        stopDrawing();
+        // Polygon is ready to be sent to backend
+        // TODO: Send polygon to backend
+      });
+    }
+  );
+
+  useEffect(() => {
+    if (isDrawingMode) {
+      draw.changeMode("draw_polygon");
+    } else {
+      draw.changeMode("simple_select");
+      // Clear any active drawing
+      draw.deleteAll();
+    }
+  }, [isDrawingMode, draw]);
+
+  return null;
+}
 
 export const Route = createFileRoute("/")({
   validateSearch: searchSchema,
@@ -38,7 +76,9 @@ function HomePage() {
             zoom: 8.4,
           }}
           mapStyle="mapbox://styles/mapbox/streets-v12"
-        />
+        >
+          <DrawControl />
+        </Map>
       </div>
     </div>
   );

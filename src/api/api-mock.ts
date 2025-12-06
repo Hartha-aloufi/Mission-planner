@@ -1,6 +1,7 @@
 import type { Mission } from "@/types/mission";
 import type { Polygon } from "geojson";
 import { area } from "@turf/area";
+import { validateMission } from "@/lib/missionValidation";
 
 // localStorage keys
 const STORAGE_KEYS = {
@@ -196,6 +197,9 @@ export async function createMission(polygon: Polygon): Promise<Mission> {
 
   const missions = getMissionsFromStorage();
 
+  // Validate mission geometry
+  const missionStatus = validateMission(polygon);
+
   // Calculate area using turf.js
   const polygonArea = area({
     type: "Feature",
@@ -207,7 +211,7 @@ export async function createMission(polygon: Polygon): Promise<Mission> {
   const newMission: Mission = {
     id: crypto.randomUUID(),
     name: `Mission ${missions.length + 1}`,
-    status: "valid",
+    status: missionStatus,
     area: Math.round(polygonArea),
     geometry: polygon,
   };

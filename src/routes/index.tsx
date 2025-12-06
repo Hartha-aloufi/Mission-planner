@@ -10,8 +10,16 @@ import { LeftSidebar } from "@/components/LeftSidebar";
 import { useIsDrawingMode, useStopDrawing } from "@/stores/useMapStore";
 import { useStartEditingMission } from "@/stores/useUIStore";
 import { useCreateMission, useMissions } from "@/api/missions";
-import { missionsToGeoJSON } from "@/lib/mapUtils";
-import { createFillLayer, createOutlineLayer } from "@/config/map/mapLayers";
+import { useScenario } from "@/api/scenario";
+import { missionsToGeoJSON, siteToGeoJSON, restrictedAreasToGeoJSON } from "@/lib/mapUtils";
+import {
+  createFillLayer,
+  createOutlineLayer,
+  createSiteFillLayer,
+  createSiteOutlineLayer,
+  createRestrictedFillLayer,
+  createRestrictedOutlineLayer,
+} from "@/config/map/mapLayers";
 
 // Zod schema for mission status
 const missionStatusSchema = z.enum([
@@ -84,14 +92,25 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { data: missions } = useMissions();
+  const { data: scenario } = useScenario();
   const search = useSearch({ from: "/" });
   const navigate = useNavigate({ from: "/" });
 
   const missionsGeoJSON = missions ? missionsToGeoJSON(missions) : null;
   const selectedMissionId = search.selectedMission || null;
 
+  const siteGeoJSON = scenario ? siteToGeoJSON(scenario.site) : null;
+  const restrictedGeoJSON = scenario
+    ? restrictedAreasToGeoJSON(scenario.restricted_areas)
+    : null;
+
   const fillLayer = createFillLayer(selectedMissionId);
   const outlineLayer = createOutlineLayer(selectedMissionId);
+
+  const siteFillLayer = createSiteFillLayer();
+  const siteOutlineLayer = createSiteOutlineLayer();
+  const restrictedFillLayer = createRestrictedFillLayer();
+  const restrictedOutlineLayer = createRestrictedOutlineLayer();
 
   const handleMapClick = (event: any) => {
     const features = event.features;
@@ -124,6 +143,18 @@ function HomePage() {
           onClick={handleMapClick}
           interactiveLayerIds={["missions-fill"]}
         >
+          {siteGeoJSON && (
+            <Source id="site" type="geojson" data={siteGeoJSON}>
+              <Layer {...siteFillLayer} />
+              <Layer {...siteOutlineLayer} />
+            </Source>
+          )}
+          {restrictedGeoJSON && (
+            <Source id="restricted-areas" type="geojson" data={restrictedGeoJSON}>
+              <Layer {...restrictedFillLayer} />
+              <Layer {...restrictedOutlineLayer} />
+            </Source>
+          )}
           {missionsGeoJSON && (
             <Source id="missions" type="geojson" data={missionsGeoJSON}>
               <Layer {...fillLayer} />

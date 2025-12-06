@@ -1,5 +1,5 @@
 import type { FillLayer, LineLayer } from "react-map-gl/mapbox";
-import { statusColorMap } from "./mapColors";
+import { statusColorMap, scenarioColorMap } from "./mapColors";
 
 export const createFillLayer = (
   selectedMissionId: string | null
@@ -58,5 +58,42 @@ export const createOutlineLayer = (
       3,
       2,
     ],
+  },
+});
+
+export const createSiteFillLayer = (): FillLayer => ({
+  id: "site-fill",
+  type: "fill",
+  paint: {
+    "fill-color": scenarioColorMap.site,
+    "fill-opacity": 0.15, // Very transparent to not overwhelm missions
+  },
+});
+
+export const createSiteOutlineLayer = (): LineLayer => ({
+  id: "site-outline",
+  type: "line",
+  paint: {
+    "line-color": scenarioColorMap.site,
+    "line-width": 2,
+    "line-dasharray": [4, 2], // Dashed line for site boundary
+  },
+});
+
+export const createRestrictedFillLayer = (): FillLayer => ({
+  id: "restricted-fill",
+  type: "fill",
+  paint: {
+    "fill-color": scenarioColorMap.restrictedArea,
+    "fill-opacity": 0.25, // More visible than site
+  },
+});
+
+export const createRestrictedOutlineLayer = (): LineLayer => ({
+  id: "restricted-outline",
+  type: "line",
+  paint: {
+    "line-color": scenarioColorMap.restrictedArea,
+    "line-width": 2,
   },
 });

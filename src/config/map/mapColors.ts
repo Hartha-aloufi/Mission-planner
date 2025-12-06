@@ -15,3 +15,9 @@ export const statusColorMap: Record<string, string> = {
   intersects_no_fly_zone: toMapColor(colors.red[500]),
   invalid_geometry: toMapColor(colors.red[500]),
 };
+
+// Scenario colors (grayish tones)
+export const scenarioColorMap = {
+  site: toMapColor(colors.gray[500]),           // #d1d5db - Light gray for site
+  restrictedArea: toMapColor(colors.gray[600]), // #9ca3af - Slightly darker gray
+} as const;

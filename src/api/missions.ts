@@ -3,6 +3,7 @@ import type { Polygon } from "geojson";
 import { toast } from "sonner";
 import { fetchMissions, createMission, renameMission } from "./api-mock";
 import type { Mission } from "@/types/mission";
+import { validateMission } from "@/lib/missionValidation";
 
 export const missionKeys = {
   all: () => ["missions"] as const,
@@ -41,10 +42,12 @@ export function useCreateMission() {
 
       // Optimistically update to the new value
       if (previousMissions) {
+        const missionStatus = validateMission(polygon);
+
         const optimisticMission: Mission = {
           id: "temp-" + Date.now(),
           name: `Mission ${previousMissions.length + 1}`,
-          status: "valid",
+          status: missionStatus, // will be validated on server, frontend calculation for better user experience
           area: 0, // Will be calculated on server
           geometry: polygon,
         };

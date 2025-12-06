@@ -1,0 +1,157 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "site",
+        "label": "Site Area (Jordan)",
+        "type": "site"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              35.4,
+              32.0
+            ],
+            [
+              35.6,
+              31.6
+            ],
+            [
+              36.2,
+              31.5
+            ],
+            [
+              36.6,
+              31.9
+            ],
+            [
+              36.5,
+              32.5
+            ],
+            [
+              35.9,
+              32.8
+            ],
+            [
+              35.5,
+              32.4
+            ],
+            [
+              35.4,
+              32.0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "restricted_1",
+        "label": "Restricted Area 1",
+        "type": "restricted_area"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              35.7,
+              31.9
+            ],
+            [
+              35.9,
+              31.9
+            ],
+            [
+              35.9,
+              32.1
+            ],
+            [
+              35.7,
+              32.1
+            ],
+            [
+              35.7,
+              31.9
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "restricted_2",
+        "label": "Restricted Area 2",
+        "type": "restricted_area"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              36.1,
+              31.7
+            ],
+            [
+              36.3,
+              31.7
+            ],
+            [
+              36.3,
+              31.9
+            ],
+            [
+              36.1,
+              31.9
+            ],
+            [
+              36.1,
+              31.7
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "restricted_3",
+        "label": "Restricted Area 3",
+        "type": "restricted_area"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              36.0,
+              32.2
+            ],
+            [
+              36.2,
+              32.2
+            ],
+            [
+              36.2,
+              32.4
+            ],
+            [
+              36.0,
+              32.4
+            ],
+            [
+              36.0,
+              32.2
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

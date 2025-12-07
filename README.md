@@ -14,14 +14,14 @@ A React-based application for validating drone mission areas against site bounda
 - **React Query** - Server state management: Missions and Scenario
 - **Zustand** - Client state management
 - **Tailwind CSS** + **shadcn/ui** - Styling
-- **React Router** - Routing with URL search params sync
+- **Tanstack Router** - Routing with URL search params sync
 
 ## ✨ Features
 
 ### Core Functionality
 - ✅ Interactive polygon drawing on Mapbox
 - ✅ Real-time mission validation with priority-based status
-- ✅ Mission management (create, rename, delete, search, filter)
+- ✅ Mission management (create, rename, search, filter)
 - ✅ Visual feedback with color-coded zones and missions
 - ✅ Click to highlight missions on map
 
@@ -96,3 +96,4 @@ Search and filter states are synchronized with URL search params, enabling:
 
 ## Known issues
 - partially_outside_site validation is not working.
+

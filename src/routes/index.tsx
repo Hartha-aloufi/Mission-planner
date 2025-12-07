@@ -1,13 +1,17 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  useSearch,
+} from "@tanstack/react-router";
 import { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Map, { useControl, Source, Layer } from "react-map-gl/mapbox";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import type { Polygon } from "geojson";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { LeftSidebar } from "@/components/LeftSidebar";
-import { useIsDrawingMode, useStopDrawing } from "@/stores/useMapStore";
+import { useIsDrawingMode } from "@/stores/useMapStore";
 import { useStartEditingMission } from "@/stores/useUIStore";
 import { useCreateMission, useMissions } from "@/api/missions";
 import { useScenario } from "@/api/scenario";
@@ -40,10 +44,10 @@ const searchSchema = z.object({
 // Draw control component
 function DrawControl() {
   const isDrawingMode = useIsDrawingMode();
-  const stopDrawing = useStopDrawing();
   const createMission = useCreateMission();
   const navigate = useNavigate({ from: "/" });
   const startEditingMission = useStartEditingMission();
+  const drawRef = useRef<MapboxDraw | null>(null);
 
   const draw = useControl(
     () =>
@@ -67,10 +71,18 @@ function DrawControl() {
             startEditingMission(newMission.id);
           },
         });
-        stopDrawing();
+        // Clear the drawn polygon to allow drawing another one
+        if (drawRef.current) {
+          drawRef.current.deleteAll();
+        }
       });
     }
   );
+
+  // Update ref when draw instance changes
+  useEffect(() => {
+    drawRef.current = draw;
+  }, [draw]);
 
   useEffect(() => {
     if (isDrawingMode) {
@@ -145,7 +157,11 @@ function HomePage() {
             </Source>
           )}
           {scenario?.restrictedAreas && (
-            <Source id="restricted-areas" type="geojson" data={scenario.restrictedAreas}>
+            <Source
+              id="restricted-areas"
+              type="geojson"
+              data={scenario.restrictedAreas}
+            >
               <Layer {...restrictedFillLayer} />
               <Layer {...restrictedOutlineLayer} />
             </Source>

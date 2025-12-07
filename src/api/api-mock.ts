@@ -10,9 +10,7 @@ const STORAGE_KEYS = {
 } as const;
 
 // Initial mock data with polygon geometries
-const INITIAL_MOCK_MISSIONS: Mission[] = [
-
-];
+const INITIAL_MOCK_MISSIONS: Mission[] = [];
 
 // Helper functions
 function getMissionsFromStorage(): Mission[] {

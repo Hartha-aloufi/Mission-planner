@@ -58,8 +58,8 @@ export function useCreateMission() {
         };
 
         queryClient.setQueryData<Mission[]>(missionKeys.lists(), [
-          ...previousMissions,
           optimisticMission,
+          ...previousMissions,
         ]);
       }
 

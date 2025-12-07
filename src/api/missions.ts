@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { fetchMissions, createMission, renameMission } from "./api-mock";
 import type { Mission } from "@/types/mission";
 import { validateMission } from "@/lib/missionValidation";
+import { useScenario } from "@/api/scenario";
 
 export const missionKeys = {
   all: () => ["missions"] as const,
@@ -26,6 +27,7 @@ export function useMissions() {
 // Mutation hook for creating a mission
 export function useCreateMission() {
   const queryClient = useQueryClient();
+  const { data: scenario } = useScenario();
 
   return useMutation({
     mutationFn: (polygon: Polygon) => createMission(polygon),
@@ -42,7 +44,10 @@ export function useCreateMission() {
 
       // Optimistically update to the new value
       if (previousMissions) {
-        const missionStatus = validateMission(polygon);
+        // If scenario is loaded, validate the mission; otherwise use "valid" as placeholder
+        const missionStatus = scenario
+          ? validateMission(polygon, scenario)
+          : "valid";
 
         const optimisticMission: Mission = {
           id: "temp-" + Date.now(),

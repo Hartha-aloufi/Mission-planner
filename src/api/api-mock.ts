@@ -1,7 +1,8 @@
 import type { Mission } from "@/types/mission";
-import type { Polygon } from "geojson";
+import type { Polygon, FeatureCollection } from "geojson";
 import { area } from "@turf/area";
 import { validateMission } from "@/lib/missionValidation";
+import scenarioGeoJSON from "@/api/jordan_scenario.json";
 
 // localStorage keys
 const STORAGE_KEYS = {
@@ -10,150 +11,7 @@ const STORAGE_KEYS = {
 
 // Initial mock data with polygon geometries
 const INITIAL_MOCK_MISSIONS: Mission[] = [
-  {
-    id: "1",
-    name: "North Field Survey",
-    status: "valid",
-    area: 15000,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [35.92, 31.98],
-          [35.98, 31.98],
-          [35.98, 31.96],
-          [35.92, 31.96],
-          [35.92, 31.98],
-        ],
-      ],
-    },
-  },
-  {
-    id: "2",
-    name: "East Boundary Check",
-    status: "partially_outside_site",
-    area: 8500,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [35.99, 31.97],
-          [36.02, 31.97],
-          [36.02, 31.95],
-          [35.99, 31.95],
-          [35.99, 31.97],
-        ],
-      ],
-    },
-  },
-  {
-    id: "3",
-    name: "Central Area Scan",
-    status: "valid",
-    area: 22000,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [35.93, 31.96],
-          [35.97, 31.96],
-          [35.97, 31.94],
-          [35.93, 31.94],
-          [35.93, 31.96],
-        ],
-      ],
-    },
-  },
-  {
-    id: "4",
-    name: "Restricted Zone Test",
-    status: "intersects_restricted_hole",
-    area: 5000,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [35.90, 31.95],
-          [35.92, 31.95],
-          [35.92, 31.93],
-          [35.90, 31.93],
-          [35.90, 31.95],
-        ],
-      ],
-    },
-  },
-  {
-    id: "5",
-    name: "Airport Vicinity",
-    status: "intersects_no_fly_zone",
-    area: 12000,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [35.94, 31.93],
-          [35.97, 31.93],
-          [35.97, 31.91],
-          [35.94, 31.91],
-          [35.94, 31.93],
-        ],
-      ],
-    },
-  },
-  {
-    id: "6",
-    name: "Invalid Path",
-    status: "invalid_geometry",
-    area: 0,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [35.88, 31.92],
-          [35.89, 31.92],
-          [35.89, 31.91],
-          [35.88, 31.91],
-          [35.88, 31.92],
-        ],
-      ],
-    },
-  },
-  {
-    id: "7",
-    name: "South Field Mapping",
-    status: "valid",
-    area: 18500,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [35.92, 31.91],
-          [35.96, 31.91],
-          [35.96, 31.89],
-          [35.92, 31.89],
-          [35.92, 31.91],
-        ],
-      ],
-    },
-  },
-  {
-    id: "8",
-    name: "West Edge Analysis",
-    status: "partially_outside_site",
-    area: 9200,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [35.88, 31.97],
-          [35.91, 31.97],
-          [35.91, 31.95],
-          [35.88, 31.95],
-          [35.88, 31.97],
-        ],
-      ],
-    },
-  },
+
 ];
 
 // Helper functions
@@ -180,6 +38,24 @@ export function initializeMissions(): void {
   }
 }
 
+// Helper to get scenario data synchronously
+function getScenarioData() {
+  const data = scenarioGeoJSON as FeatureCollection;
+
+  return {
+    site: {
+      type: "FeatureCollection" as const,
+      features: data.features.filter((f) => f.properties?.type === "site"),
+    },
+    restrictedAreas: {
+      type: "FeatureCollection" as const,
+      features: data.features.filter(
+        (f) => f.properties?.type === "restricted_area"
+      ),
+    },
+  };
+}
+
 // Mock API functions
 export async function fetchMissions(): Promise<Mission[]> {
   // Initialize if needed
@@ -196,9 +72,10 @@ export async function createMission(polygon: Polygon): Promise<Mission> {
   await new Promise((resolve) => setTimeout(resolve, 800));
 
   const missions = getMissionsFromStorage();
+  const scenario = getScenarioData();
 
-  // Validate mission geometry
-  const missionStatus = validateMission(polygon);
+  // Validate mission geometry with scenario
+  const missionStatus = validateMission(polygon, scenario);
 
   // Calculate area using turf.js
   const polygonArea = area({

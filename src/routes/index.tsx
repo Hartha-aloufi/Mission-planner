@@ -11,7 +11,7 @@ import { useIsDrawingMode, useStopDrawing } from "@/stores/useMapStore";
 import { useStartEditingMission } from "@/stores/useUIStore";
 import { useCreateMission, useMissions } from "@/api/missions";
 import { useScenario } from "@/api/scenario";
-import { missionsToGeoJSON, siteToGeoJSON, restrictedAreasToGeoJSON } from "@/lib/mapUtils";
+import { missionsToGeoJSON } from "@/lib/mapUtils";
 import {
   createFillLayer,
   createOutlineLayer,
@@ -99,11 +99,6 @@ function HomePage() {
   const missionsGeoJSON = missions ? missionsToGeoJSON(missions) : null;
   const selectedMissionId = search.selectedMission || null;
 
-  const siteGeoJSON = scenario ? siteToGeoJSON(scenario.site) : null;
-  const restrictedGeoJSON = scenario
-    ? restrictedAreasToGeoJSON(scenario.restricted_areas)
-    : null;
-
   const fillLayer = createFillLayer(selectedMissionId);
   const outlineLayer = createOutlineLayer(selectedMissionId);
 
@@ -143,14 +138,14 @@ function HomePage() {
           onClick={handleMapClick}
           interactiveLayerIds={["missions-fill"]}
         >
-          {siteGeoJSON && (
-            <Source id="site" type="geojson" data={siteGeoJSON}>
+          {scenario?.site && (
+            <Source id="site" type="geojson" data={scenario.site}>
               <Layer {...siteFillLayer} />
               <Layer {...siteOutlineLayer} />
             </Source>
           )}
-          {restrictedGeoJSON && (
-            <Source id="restricted-areas" type="geojson" data={restrictedGeoJSON}>
+          {scenario?.restrictedAreas && (
+            <Source id="restricted-areas" type="geojson" data={scenario.restrictedAreas}>
               <Layer {...restrictedFillLayer} />
               <Layer {...restrictedOutlineLayer} />
             </Source>

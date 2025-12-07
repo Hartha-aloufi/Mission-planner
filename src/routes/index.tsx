@@ -108,7 +108,19 @@ function HomePage() {
   const search = useSearch({ from: "/" });
   const navigate = useNavigate({ from: "/" });
 
-  const missionsGeoJSON = missions ? missionsToGeoJSON(missions) : null;
+  // Filter missions based on search query and status filters (matching MissionsList logic)
+  const activeFilters = new Set(search.filters || []);
+
+  const filteredMissions = (missions || []).filter((mission) => {
+    // Filter by status (if any filters are active)
+    const matchesFilter =
+      activeFilters.size === 0 || activeFilters.has(mission.status);
+
+    return matchesFilter;
+  });
+
+  const missionsGeoJSON =
+    filteredMissions.length > 0 ? missionsToGeoJSON(filteredMissions) : null;
   const selectedMissionId = search.selectedMission || null;
 
   const fillLayer = createFillLayer(selectedMissionId);
